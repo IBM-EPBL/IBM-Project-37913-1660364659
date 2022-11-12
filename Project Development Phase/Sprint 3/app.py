@@ -89,7 +89,7 @@ def create_user():
         ibm_db.execute(prep_stmt)
 
         message = Mail(
-            from_email='veronishwetha.23it@licet.ac.in',
+            from_email='juhaifahamed@gmail.com',
             to_emails=email,
             subject='Sending with Twilio SendGrid is Fun',
             html_content='<strong>and easy to do anywhere, even with Python</strong>')
@@ -141,7 +141,7 @@ def profile():
         ibm_db.execute(prep_stmt)
 
         message = Mail(
-            from_email='veronishwetha.23it@licet.ac.in',
+            from_email='juhaifahamed@gmail.com',
             to_emails=email,
             subject='Sending with Twilio SendGrid is Fun',
             html_content='<strong>and easy to do anywhere, even with Python</strong>')
@@ -154,7 +154,7 @@ def profile():
 
         return render_template('dashboard.html', msg="Details uploaded successfuly..")
     elif request.method=='GET':
-        email='elizabethsubhikshavictoria.23it@licet.ac.in'
+        email='juhaifahamed@gmail.com'
         sql = "SELECT first_name, email FROM users WHERE email =?"
         stmt = ibm_db.prepare(conn, sql)
         ibm_db.bind_param(stmt, 1, email)

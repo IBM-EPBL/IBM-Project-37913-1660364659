@@ -14,7 +14,7 @@ password = os.getenv("PWD")
 conn = ibm_db.connect(
     f'DATABASE={db};HOSTNAME={host};PORT={port};SECURITY=SSL;SSLServerCertificate={sslcert};UID={userId};PWD={password}', '', '')
 
-email = 'veronishwetha@gmail.com'
+email = 'juhaifahamed@gmail.com'
 
 sql = "SELECT password FROM users WHERE email =?"
 stmt = ibm_db.prepare(conn, sql)

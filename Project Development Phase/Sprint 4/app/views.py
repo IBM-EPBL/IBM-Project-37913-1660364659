@@ -33,7 +33,7 @@ def signin():
             result = pwd
 
             if result:
-                return redirect("/dashboard", code=302)
+                return redirect("/headlines", code=302)
             else:
                 return render_template('signin.html', msg="Invalid Credentials")
         else:

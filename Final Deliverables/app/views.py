@@ -10,73 +10,74 @@ from sendgrid.helpers.mail import Mail
 conn = ibm_db.connect("DATABASE=;HOSTNAME=;PORT=;SECURITY=SSL;SSLServerCertificate=DigiCertGlobalRootCA.crt;UID=;PWD=",'','')
 
 
-@app.route('/')
-def index():
-    return render_template('signin.html')
-
-
-@app.route('/signin', methods=['POST', 'GET'])
-def signin():
+@app.route('/', methods=['GET', 'POST'])
+def login():
     if request.method == 'POST':
-
-        email = request.form['username']
-        pwd = request.form['password']
-        password = ""
-
-        sql = "SELECT password FROM users WHERE email =?"
-        stmt = ibm_db.prepare(conn, sql)
+        # getting user data
+        email = request.form.get('email')
+        password = request.form.get('password')
+        sql_check_query = "SELECT * FROM user WHERE email = ?"
+        stmt = ibm_db.prepare(conn, sql_check_query)
         ibm_db.bind_param(stmt, 1, email)
         ibm_db.execute(stmt)
-        auth_token = ibm_db.fetch_assoc(stmt)
+        account = ibm_db.fetch_assoc(stmt)
+        print(account)
+        if account:
+            # email id exists 
+            # checking if the password is correct
+            if not account['PASSWORD'] == password:
+                flash('Invalid password', category='error')
 
-        if auth_token:
-            result = pwd
-
-            if result:
-                return redirect("/dashboard", code=302)
             else:
-                return render_template('signin.html', msg="Invalid Credentials")
+                # user entered the correct password
+                # redirecting the user to the dashboard
+                session['user_id'] = account['EMAIL']
+                return redirect(url_for('home'))
+
         else:
-            return render_template('signin.html', msg="User doesn't exist")
+            # email id does not exist in the database
+            flash('Email invalid... Try Again', category='error')
+            
+        return render_template('auth/login.html')
+    
+    return render_template('auth/login.html')
+    # return render_template('login.html')
 
-
-@app.route('/signup')
-def signup_form():
-    return render_template('signup.html')
-
-
-@app.route('/create_user', methods=['POST', 'GET'])
-def create_user():
+@app.route('/register', methods=['GET', 'POST'])
+def register():
     if request.method == 'POST':
+        # getting user data
+        email = request.form.get('email')
+        password = request.form.get('password')
+        # checking: user already exists or not
+        sql_check_query = "SELECT * FROM user WHERE email = ?"
+        stmt = ibm_db.prepare(conn, sql_check_query)
+        ibm_db.bind_param(stmt, 1, email)
+        ibm_db.execute(stmt) 
 
-        email = request.form['email']
-        password = request.form['password']
-        firstName = request.form['first_name']
-        lastName = request.form['last_name']
-        # converting password to array of bytes
-        hashed_password=password
+        account = ibm_db.fetch_assoc(stmt)
+        # email id does not exist in the database
+        if not account:
+            # inserting the data into the database
+            sql_insert_query = "INSERT INTO user VALUES (?, ?)"
+            stmt = ibm_db.prepare(conn, sql_insert_query)
+            ibm_db.bind_param(stmt, 1, email)
+            ibm_db.bind_param(stmt, 2, password)
+            ibm_db.execute(stmt)
 
-        insert_sql = "INSERT INTO users VALUES (?,?,?,?)"
-        prep_stmt = ibm_db.prepare(conn, insert_sql)
-        ibm_db.bind_param(prep_stmt, 1, firstName)
-        ibm_db.bind_param(prep_stmt, 2, lastName)
-        ibm_db.bind_param(prep_stmt, 3, email)
-        ibm_db.bind_param(prep_stmt, 4, hashed_password)
-       # ibm_db.bind_param(prep_stmt, 5, intersts)
-        ibm_db.execute(prep_stmt)
+            # user data inserted into the database
+            # redirecting to login page
+            flash('User created successfully! Please Login', category='success')
+            return redirect('/')
 
-        message = Mail(
-            from_email='ahamedjuhaif132@outlook.com',
-            to_emails=email,
-            subject='Sending with Twilio SendGrid is Fun',
-            html_content='<strong>and easy to do anywhere, even with Python</strong>')
-        try:
-            sg = SendGridAPIClient(sendgrid)
-            response = sg.send(message)
-        except Exception as e:
-            print("ERROR: PC LOAD LETTER")
+        else:
+            flash('Email id already exists! Try another one', category='error')
 
-        return redirect("/home", code=302)
+        return render_template('auth/register.html')
+
+    return render_template('auth/register.html')
+    # return render_template('register.html')
+
 
 @app.route('/home')
 def home():

@@ -1,13 +1,17 @@
 from app import app
-from flask import render_template
+from flask import render_template, redirect
+from flask import url_for
+from flask import request
+from flask import flash
+from flask import session
 from .request import businessArticles, entArticles, get_news_source, healthArticles, publishedArticles, randomArticles, scienceArticles, sportArticles, techArticles, topHeadlines
 import ibm_db
 import re
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-
-conn = ibm_db.connect("DATABASE=;HOSTNAME=;PORT=;SECURITY=SSL;SSLServerCertificate=DigiCertGlobalRootCA.crt;UID=;PWD=",'','')
+app.secret_key = 'a'
+conn = ibm_db.connect("DATABASE=bludb;HOSTNAME=19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud;PORT=30699;SECURITY=SSL;SSLServerCertificate=DigiCertGlobalRootCA.crt;UID=vdw12720;PWD=2C3yBJCDvrFURLPQ",'','')
 
 
 @app.route('/', methods=['GET', 'POST'])

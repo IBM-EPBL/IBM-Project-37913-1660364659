@@ -2,8 +2,6 @@ from app import app
 from flask import render_template, redirect
 from flask import url_for
 from flask import request
-from flask import flash
-from flask import session
 from .request import businessArticles, entArticles, get_news_source, healthArticles, publishedArticles, randomArticles, scienceArticles, sportArticles, techArticles, topHeadlines
 import ibm_db
 import re
